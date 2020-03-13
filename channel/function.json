@@ -1,0 +1,10 @@
+{
+  "bindings": [
+    {
+      "name": "channel",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "0 * * * * *"
+    }
+  ]
+}
