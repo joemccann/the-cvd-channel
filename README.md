@@ -89,7 +89,8 @@ npm i
   "Host": {
     "LocalHttpPort": 7072
   }
-}```
+}
+```
 
 The `CHANNEL_URL` is used for posting messages to your private broadcast channel.
 
