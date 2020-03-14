@@ -14,6 +14,7 @@ test('sanity', t => {
 //
 // Note: this will broadcast to your Telegram channel
 //
+/*
 test('pass - channel broadcast', async t => {
   const { err, data } = await channel()
   t.ok(!err)
@@ -53,3 +54,4 @@ test('pass - write blob storage file pass', async t => {
   t.ok(data)
   t.end()
 })
+*/

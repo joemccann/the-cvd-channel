@@ -9,7 +9,8 @@ const broadcast = require('./src/http')
 module.exports = async function (context, myTimer) {
   let newsMessage = ''
   let statsMessage = ''
-  let isLatestData = false
+  let isLatestNews = false
+  let isLatestStats = false
   //
   // Fetch all news and stats from network sources
   //
@@ -47,89 +48,101 @@ module.exports = async function (context, myTimer) {
   // If true, data is the same, so it is up to date.
   // If false, data is not the same, so it is not up to date.
   //
-  isLatestData = objectCompare(httpData, readFileData)
+  isLatestNews = objectCompare(httpData.news, readFileData.news)
+  isLatestStats = objectCompare(httpData.stats, readFileData.stats)
 
-  if (!isLatestData) {
-    console.log(`Data is out of date: ${(new Date()).toLocaleDateString()}`)
-  } else {
-    const msg = 'Data is up to date. No broadcast necessary.'
+  if (!isLatestNews) {
+    console.log(`News is out of date: ${(new Date()).toLocaleDateString()}`)
+    //
+    // diff the news articles
+    //
+    const diffNews = {
+      articles: null
+    }
+    diffNews.articles = httpData.news.articles
+      .filter(x => !readFileData.news.articles.includes(x))
+    //
+    // Format all news and stats messages
+    //
+    const { err: nFormatErr, data: formattedNews } = await format({
+      type: 'news',
+      data: diffNews
+    })
+
+    if (nFormatErr) {
+      console.error(nFormatErr.message)
+      return { err: nFormatErr }
+    }
+    newsMessage = formattedNews
+
+    //
+    // Send the news message to the channel
+    //
+    {
+      const { err } = await broadcast({
+        message: newsMessage,
+        mode: 'markdown'
+      })
+      if (err) {
+        console.error(err.message)
+        return { err }
+      }
+    }
+    const msg = '✓ News successfully sent.'
     console.info(msg)
-    return { data: msg, err: null }
+  } else {
+    const msg = 'News is up to date. No broadcast necessary.'
+    console.info(msg)
+  }
+
+  if (!isLatestStats) {
+    console.log(`Stats are out of date: ${(new Date()).toLocaleDateString()}`)
+
+    const { err: sFormatErr, data: formattedStats } = await format({
+      type: 'stats',
+      data: httpData.stats
+    })
+
+    if (sFormatErr) {
+      console.error(sFormatErr.message)
+      return { err: sFormatErr }
+    }
+    statsMessage = formattedStats
+
+    {
+      const { err } = await broadcast({
+        message: statsMessage,
+        mode: 'markdown'
+      })
+      if (err) {
+        console.error(err.message)
+        return { err }
+      }
+    }
+
+    const msg = '✓ Stats Broadcast successfully sent.'
+    console.info(msg)
+  } else {
+    const msg = 'Stats are up to date. No broadcast necessary.'
+    console.info(msg)
   }
 
   //
-  // Diff the news articles
-  //
-
-  const diff = {
-    articles: null
-  }
-  diff.articles = httpData.news.articles
-    .filter(x => !readFileData.news.articles.includes(x))
-
   // Write updates to a file
   //
-  const { err: writeFileErr } = await write({
-    content: JSON.stringify(httpData),
-    container: 'the-cvd-bot-blob-container',
-    filename: 'latest-data.json'
-  })
-
-  if (writeFileErr) {
-    return { err: readErr.message }
-  }
-
-  //
-  // Format all news and stats messages
-  //
-  const { err: nFormatErr, data: formattedNews } = await format({
-    type: 'news',
-    data: diff
-  })
-
-  if (nFormatErr) {
-    console.error(nFormatErr.message)
-    return { err: nFormatErr }
-  }
-  newsMessage = formattedNews
-
-  const { err: sFormatErr, data: formattedStats } = await format({
-    type: 'stats',
-    data: httpData.stats
-  })
-
-  if (sFormatErr) {
-    console.error(sFormatErr.message)
-    return { err: sFormatErr }
-  }
-  statsMessage = formattedStats
-
-  //
-  // Send the messages to the channel
-  //
-  {
-    const { err } = await broadcast({
-      message: newsMessage,
-      mode: 'markdown'
+  if (!isLatestNews || !isLatestStats) {
+    const { err: writeFileErr } = await write({
+      content: JSON.stringify(httpData),
+      container: 'the-cvd-bot-blob-container',
+      filename: 'latest-data.json'
     })
-    if (err) {
-      console.error(err.message)
-      return { err }
+
+    if (writeFileErr) {
+      return { err: readErr.message }
     }
+    const msg = '✓ File successfully written to storage.'
+    console.info(msg)
   }
 
-  {
-    const { err } = await broadcast({
-      message: statsMessage,
-      mode: 'markdown'
-    })
-    if (err) {
-      console.error(err.message)
-      return { err }
-    }
-  }
-
-  const msg = '✓ Broadcast successfully sent.'
-  console.info(msg)
-  return { data: 'Broadcast sent.', err: null }
+  return { data: 'Function executed with no errors.', err: null }
 }

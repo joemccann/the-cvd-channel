@@ -8,7 +8,6 @@ module.exports = async ({ url = '', message = '', mode = 'markdown' }) => {
       .replace('{mode}', mode)
       .replace('{text}', encodeURI(message))
 
-    console.log(POST_URL)
     const response = await fetch(POST_URL)
 
     if (!response.ok) return { err: new Error(response.statusText) }
