@@ -96,7 +96,7 @@ module.exports = async function (context, myTimer) {
   }
 
   if (!isLatestStats) {
-    console.log(`Stats are out of date: ${(new Date()).toLocaleDateString()}`)
+    console.log(`Stats is out of date: ${(new Date()).toLocaleDateString()}`)
 
     const { err: sFormatErr, data: formattedStats } = await format({
       type: 'stats',
