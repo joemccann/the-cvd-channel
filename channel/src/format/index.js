@@ -29,7 +29,7 @@ const format = async ({ type = '', data = {} }) => {
   }
 
   if (type === 'stats') {
-    const { cases, deaths, recovered } = data
+    const { cases = 0, deaths = 0, recovered = 0 } = data
 
     {
       const data = stripIndent`
