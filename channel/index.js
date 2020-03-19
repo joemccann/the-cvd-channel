@@ -50,7 +50,13 @@ module.exports = async function (context, myTimer) {
     // If false, data is not the same, so it is not up to date.
     //
     isLatestNews = objectCompare(httpData.news, readFileData.news)
-    isLatestStats = objectCompare(httpData.stats, readFileData.stats)
+
+    const hStats = { ...httpData.stats }
+    delete hStats.timestamp
+    const fStats = { ...readFileData.stats }
+    delete hStats.timestamp
+
+    isLatestStats = objectCompare(hStats, fStats)
 
     if (!isLatestNews) {
       console.log(`News is out of date: ${(new Date()).toLocaleDateString()}`)
