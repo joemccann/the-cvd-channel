@@ -34,7 +34,7 @@ const format = async ({ type = '', data = {} }) => {
     let cfr = 0
 
     try {
-      cfr = ((deaths / recovered) * 100).toFixed(2) + '%'
+      cfr = ((deaths / cases) * 100).toFixed(2) + '%'
     } catch (err) {
       cfr = '0.0%'
       console.error(err.message)
