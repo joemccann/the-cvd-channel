@@ -31,6 +31,15 @@ const format = async ({ type = '', data = {} }) => {
   if (type === 'stats') {
     const { cases = 0, deaths = 0, recovered = 0 } = data
 
+    let cfr = 0
+
+    try {
+      cfr = ((deaths / recovered) * 100).toFixed(2) + '%'
+    } catch (err) {
+      cfr = '0.0%'
+      console.error(err.message)
+    }
+
     {
       const data = stripIndent`
       🦠 Total Number of Cases: *${(cases).toLocaleString('en')}* 
@@ -38,6 +47,8 @@ const format = async ({ type = '', data = {} }) => {
       💀 Total Number of Deaths: *${(deaths).toLocaleString('en')}* 
 
       🤞🏼 Total Number of Recoveries: *${(recovered).toLocaleString('en')}* 
+
+      ⚰️  Case Fatality Rate: *${(cfr).toLocaleString('en')}* 
       `
       return { data }
     }
