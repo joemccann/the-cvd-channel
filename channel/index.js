@@ -52,9 +52,9 @@ module.exports = async function (context, myTimer) {
     isLatestNews = objectCompare(httpData.news, readFileData.news)
 
     const hStats = { ...httpData.stats }
-    delete hStats.timestamp
+    delete hStats.updated
     const fStats = { ...readFileData.stats }
-    delete hStats.timestamp
+    delete fStats.updated
 
     isLatestStats = objectCompare(hStats, fStats)
 
