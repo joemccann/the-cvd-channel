@@ -1,7 +1,7 @@
 const fetch = require('node-fetch')
 
 module.exports = async (URL) => {
-  const STATS_URL = URL || 'https://corona.lmao.ninja/all'
+  const STATS_URL = URL || 'https://corona.lmao.ninja/v2/all'
   try {
     const response = await fetch(STATS_URL)
 
